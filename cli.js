@@ -13,7 +13,7 @@ const token = '';
 const tokenSecret = '';
 
 const accountId = 'TD2929968';
-const restletUrl = 'https://td2929968.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=810&deploy=1';
+const restletUrl = 'https://account_id.restlets.api.netsuite.com/app/site/hosting/restlet.nl?script=810&deploy=1';
 
 const oauth = OAuth({
     consumer: { key: consumerKey, secret: consumerSecret },
