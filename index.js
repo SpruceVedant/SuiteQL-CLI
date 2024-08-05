@@ -20,7 +20,7 @@ program
   .version('1.0.0')
   .description('CLI tool to run SuiteQL queries using SuiteTalk');
 
-
+// Command to configure authentication keys
 program
   .command('configure')
   .description('Configure authentication keys')
@@ -32,13 +32,13 @@ program
       { type: 'input', name: 'TOKEN_ID', message: 'Enter your NetSuite Token ID:' },
       { type: 'input', name: 'TOKEN_SECRET', message: 'Enter your NetSuite Token Secret:' }
     ]);
-    console.log('Saving configuration to:', CONFIG_PATH); 
-    console.log('Configuration data:', answers);
+    console.log('Saving configuration to:', CONFIG_PATH); // Debug print
+    console.log('Configuration data:', answers); // Debug print
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(answers, null, 2));
     console.log('Configuration saved.');
   });
 
-
+// Command to run SuiteQL queries
 program
   .command('run')
   .description('Run SuiteQL query')
@@ -49,9 +49,9 @@ program
     const options = cmd;
     let config;
     if (fs.existsSync(CONFIG_PATH)) {
-      console.log('Loading configuration from:', CONFIG_PATH); 
+      console.log('Loading configuration from:', CONFIG_PATH); // Debug print
       config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-      console.log('Loaded configuration:', config);
+      console.log('Loaded configuration:', config); // Debug print
     } else {
       console.error('Please run "suiteql-cli configure" to set up your authentication keys.');
       process.exit(1);
@@ -76,33 +76,32 @@ program
     };
 
     if (options.query) {
-      runSuiteQL(options.query, config)
-        .then((result) => {
-          if (options.output) {
-            const fileType = options.output.split('.').pop();
-            let dataToWrite;
+      try {
+        const result = await runSuiteQL(options.query, config);
+        if (options.output) {
+          const fileType = options.output.split('.').pop();
+          let dataToWrite;
 
-            if (fileType === 'csv') {
-              dataToWrite = parse(result.items);
-            } else if (fileType === 'json') {
-              dataToWrite = JSON.stringify(result, null, 2);
-            } else {
-              console.error('Unsupported file type. Please use .csv or .json');
-              return;
-            }
-
-            fs.writeFileSync(options.output, dataToWrite);
-            console.log(`Data exported to ${options.output}`);
-          } else if (options.graph) {
-            const data = result.items.map(item => ({ email: item.email, count: item.count }));
-            displayChart(data);
+          if (fileType === 'csv') {
+            dataToWrite = parse(result.items);
+          } else if (fileType === 'json') {
+            dataToWrite = JSON.stringify(result, null, 2);
           } else {
-            console.log('Query Result:', JSON.stringify(result, null, 2));
+            console.error('Unsupported file type. Please use .csv or .json');
+            return;
           }
-        })
-        .catch((error) => {
-          console.error('Error:', error.message);
-        });
+
+          fs.writeFileSync(options.output, dataToWrite);
+          console.log(`Data exported to ${options.output}`);
+        } else if (options.graph) {
+          const data = result.items.map(item => ({ email: item.email, count: item.count }));
+          displayChart(data);
+        } else {
+          console.log('Query Result:', JSON.stringify(result, null, 2));
+        }
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
     } else {
       console.error('Please provide a SuiteQL query using the -q or --query option.');
     }
