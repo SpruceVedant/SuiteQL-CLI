@@ -8,11 +8,80 @@ import { runSuiteQL } from './lib/Suitetalkcli.js';
 import { parse } from 'json2csv';
 import Chart from 'cli-chart';
 import inquirer from 'inquirer';
+import chalk from 'chalk';
+import Table from 'cli-table3';
+import { homedir } from 'os';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const CONFIG_PATH = path.join(__dirname, 'config.json');
+const HISTORY_DIR = path.join(homedir(), '.suiteql-cli');
+const HISTORY_FILE = path.join(HISTORY_DIR, 'query_history.json');
+const templates = {
+  listEntities: 'SELECT * FROM entity',
+  countTransactions: 'SELECT COUNT(*) FROM transaction',
+};
+
+const saveQueryToHistory = (query) => {
+  if (!fs.existsSync(HISTORY_DIR)) {
+    fs.mkdirSync(HISTORY_DIR, { recursive: true });
+  }
+
+  let history = [];
+  if (fs.existsSync(HISTORY_FILE)) {
+    history = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+  }
+  history.push({ query, timestamp: new Date().toISOString() });
+  fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+};
+
+const getQueryHistory = () => {
+  if (fs.existsSync(HISTORY_FILE)) {
+    return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+  }
+  return [];
+};
+
+const getQueryTemplate = (name) => templates[name];
+
+const highlightSQL = (query) => {
+  return query
+    .replace(/(SELECT|FROM|WHERE|GROUP BY|ORDER BY|COUNT|AS)/gi, chalk.blue('$1'))
+    .replace(/(\*|,)/g, chalk.green('$1'))
+    .replace(/([0-9]+)/g, chalk.red('$1'));
+};
+
+const loadConfig = () => {
+  if (fs.existsSync(CONFIG_PATH)) {
+    console.log('Loading configuration from:', CONFIG_PATH);
+    const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+    console.log('Loaded configuration:', config);
+    return config;
+  } else {
+    console.error('Please run "suiteql-cli configure" to set up your authentication keys.');
+    process.exit(1);
+  }
+};
+
+const displayTable = (data) => {
+  if (data.length === 0) {
+    console.log(chalk.yellow('No results found.'));
+    return;
+  }
+
+  const table = new Table({
+    head: Object.keys(data[0]).map((key) => chalk.cyan(key)),
+    colWidths: Object.keys(data[0]).map(() => 20),
+    wordWrap: true,
+  });
+
+  data.forEach((row) => {
+    table.push(Object.values(row));
+  });
+
+  console.log(table.toString());
+};
 
 const program = new Command();
 
@@ -32,8 +101,8 @@ program
       { type: 'input', name: 'TOKEN_ID', message: 'Enter your NetSuite Token ID:' },
       { type: 'input', name: 'TOKEN_SECRET', message: 'Enter your NetSuite Token Secret:' }
     ]);
-    console.log('Saving configuration to:', CONFIG_PATH); // Debug print
-    console.log('Configuration data:', answers); // Debug print
+    console.log('Saving configuration to:', CONFIG_PATH);
+    console.log('Configuration data:', answers);
     fs.writeFileSync(CONFIG_PATH, JSON.stringify(answers, null, 2));
     console.log('Configuration saved.');
   });
@@ -47,15 +116,7 @@ program
   .option('-g, --graph', 'Display query results as a graph')
   .action(async (cmd) => {
     const options = cmd;
-    let config;
-    if (fs.existsSync(CONFIG_PATH)) {
-      console.log('Loading configuration from:', CONFIG_PATH); // Debug print
-      config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
-      console.log('Loaded configuration:', config); // Debug print
-    } else {
-      console.error('Please run "suiteql-cli configure" to set up your authentication keys.');
-      process.exit(1);
-    }
+    const config = loadConfig();
 
     const displayChart = (data) => {
       const chart = new Chart({
@@ -76,6 +137,8 @@ program
     };
 
     if (options.query) {
+      saveQueryToHistory(options.query);
+      console.log('Query:', highlightSQL(options.query));
       try {
         const result = await runSuiteQL(options.query, config);
         if (options.output) {
@@ -97,13 +160,43 @@ program
           const data = result.items.map(item => ({ email: item.email, count: item.count }));
           displayChart(data);
         } else {
-          console.log('Query Result:', JSON.stringify(result, null, 2));
+          displayTable(result.items);
         }
       } catch (error) {
         console.error('Error:', error.message);
       }
     } else {
       console.error('Please provide a SuiteQL query using the -q or --query option.');
+    }
+  });
+
+// Command to display query history
+program
+  .command('history')
+  .description('Show query history')
+  .action(() => {
+    const history = getQueryHistory();
+    history.forEach((entry, index) => {
+      console.log(`${index + 1}. ${entry.query} [${entry.timestamp}]`);
+    });
+  });
+
+// Command to run a query template
+program
+  .command('template')
+  .description('Run a predefined query template')
+  .option('-t, --template <template>', 'Template name')
+  .action((cmd) => {
+    const template = getQueryTemplate(cmd.template);
+    const config = loadConfig();
+    if (template) {
+      runSuiteQL(template, config).then((result) => {
+        displayTable(result.items);
+      }).catch((error) => {
+        console.error('Error:', error.message);
+      });
+    } else {
+      console.error('Template not found');
     }
   });
 
