@@ -59,7 +59,7 @@ const loadConfig = () => {
     console.log('Loaded configuration:', config);
     return config;
   } else {
-    console.error('Please run "suiteql-cli configure" to set up your authentication keys.');
+    console.error('Please run "suiteql-cli configure or suiteql configure" to set up your authentication keys.');
     process.exit(1);
   }
 };
