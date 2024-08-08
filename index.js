@@ -86,7 +86,7 @@ const displayTable = (data) => {
 const program = new Command();
 
 program
-  .version('1.0.0')
+  .version('1.0.2')
   .description('CLI tool to run SuiteQL queries using SuiteTalk');
 
 // Command to configure authentication keys
