@@ -89,7 +89,7 @@ program
   .version('1.0.2')
   .description('CLI tool to run SuiteQL queries using SuiteTalk');
 
-// Command to configure authentication keys
+
 program
   .command('configure')
   .description('Configure authentication keys')
