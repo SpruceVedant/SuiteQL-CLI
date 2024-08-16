@@ -107,7 +107,7 @@ program
     console.log('Configuration saved.');
   });
 
-// Command to queries
+
 program
   .command('run')
   .description('Run SuiteQL query')
