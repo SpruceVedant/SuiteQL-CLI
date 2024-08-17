@@ -170,7 +170,6 @@ program
     }
   });
 
-// Command to display query history
 program
   .command('history')
   .description('Show query history')
