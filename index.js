@@ -180,7 +180,6 @@ program
     });
   });
 
-// Command to run a query template
 program
   .command('template')
   .description('Run a predefined query template')
