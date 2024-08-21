@@ -42,3 +42,20 @@ function displayResultsInTable(results) {
         table.appendChild(thead);
 
         
+const tbody = document.createElement('tbody');
+        results.forEach(result => {
+            const row = document.createElement('tr');
+            Object.values(result).forEach(value => {
+                const td = document.createElement('td');
+                td.textContent = value !== null ? value : '';  // Handle null values
+                row.appendChild(td);
+            });
+            tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        output.appendChild(table);
+    } else {
+        output.textContent = 'No results found or an error occurred.';
+    }
+}
