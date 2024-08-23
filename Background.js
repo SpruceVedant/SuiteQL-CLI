@@ -59,11 +59,3 @@ const tbody = document.createElement('tbody');
         output.textContent = 'No results found or an error occurred.';
     }
 }
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'QUERY_HISTORY') {
-        console.log('Parse query results:', message.data);
-        const results = JSON.parse(message.data);
-        displayResultsInTable(results);
-    }
-});
