@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 function displayResultsInTable(results) {
     const output = document.getElementById('output');
-    output.innerHTML = '';  // Clear previous results
+    output.innerHTML = '';
 
     if (Array.isArray(results) && results.length > 0) {
         const table = document.createElement('table');
