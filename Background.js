@@ -13,11 +13,3 @@ document.getElementById('runQuery').addEventListener('click', () => {
         });
     });
 });
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === 'QUERY_RESULTS') {
-        console.log('Received query results:', message.data);
-        const results = JSON.parse(message.data);
-        displayResultsInTable(results);
-    }
-});
