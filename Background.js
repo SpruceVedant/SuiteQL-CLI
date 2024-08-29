@@ -94,32 +94,20 @@ function loadQueryHistory() {
     });
 }
 
-// Key columns to make clickable with dynamic URL generation
-const clickableColumns = {
-    entity: (id) => `https://td2929968.app.netsuite.com/app/common/entity/custjob.nl?id=${id}`,
-    id: (id, recordType) => {
-        switch (recordType) {
-            case 'CustomField':
-                return `https://td2929968.app.netsuite.com/app/common/custom/bodycustfield.nl?id=${id}`;
-            case 'SalesOrd':
-                return `https://td2929968.app.netsuite.com/app/accounting/transactions/salesord.nl?id=${id}&whence=`;
-            case 'RtnAuth':
-                return `https://td2929968.app.netsuite.com/app/accounting/transactions/rtnauth.nl?id=${id}&whence=`;
-            // Add more cases as needed for different record types
-            default:
-                return `https://td2929968.app.netsuite.com/app/common/custom/${recordType}.nl?id=${id}`;
-        }
-    },
-    transaction: (id, type) => {
-        if (type === 'SalesOrd') {
-            return `https://td2929968.app.netsuite.com/app/accounting/transactions/salesord.nl?id=${id}&whence=`;
-        } else if (type === 'RtnAuth') {
-            return `https://td2929968.app.netsuite.com/app/accounting/transactions/rtnauth.nl?id=${id}&whence=`;
-        }
-        // Add more transaction types if needed
-        return null;
-    }
+// Mapping of transaction types to their URL structures
+const transactionUrlMapping = {
+    SalesOrd: (id) => `https://td2929968.app.netsuite.com/app/accounting/transactions/salesord.nl?id=${id}&whence=`,
+    RtnAuth: (id) => `https://td2929968.app.netsuite.com/app/accounting/transactions/rtnauth.nl?id=${id}&whence=`,
+    // Add more transaction types as needed
 };
+
+// Function to determine the correct URL for the transaction
+function getTransactionUrl(type, id) {
+    if (transactionUrlMapping[type]) {
+        return transactionUrlMapping[type](id);
+    }
+    return null;
+}
 
 function openResultsInNewWindow(results) {
     const newWindow = window.open('', '_blank', 'width=800,height=600');
@@ -165,21 +153,12 @@ function openResultsInNewWindow(results) {
                 td.style.border = '1px solid #ddd';
                 td.style.padding = '8px';
 
-                let linkUrl = null;
-
-                // Check if the column is in the clickableColumns object
-                if (clickableColumns[key]) {
-                    if (key === 'id') {
-                        linkUrl = clickableColumns[key](value, result['type'] || result['recordType']);
-                    } else if (key === 'transaction' && result['type']) {
-                        linkUrl = clickableColumns[key](value, result['type']);
-                    } else {
-                        linkUrl = clickableColumns[key](value);
-                    }
-
-                    if (linkUrl) {
+                if (key === 'transaction' && result['type']) {
+                    // Generate a URL based on the transaction type
+                    const url = getTransactionUrl(result['type'], value);
+                    if (url) {
                         const link = doc.createElement('a');
-                        link.href = linkUrl;
+                        link.href = url;
                         link.target = '_blank';
                         link.textContent = value !== null ? value : '';
                         link.style.color = '#007bff';  // Blue color to indicate a link
@@ -200,6 +179,7 @@ function openResultsInNewWindow(results) {
 
         doc.body.appendChild(table);
 
+        // Attach export functionality
         newWindow.exportToCSV = function() {
             const csvContent = results.map(row => Object.values(row).map(value => `"${value}"`).join(',')).join('\n');
             const csvBlob = new Blob([csvContent], { type: 'text/csv' });
@@ -237,10 +217,12 @@ function openResultsInNewWindow(results) {
             doc.save('query_results.pdf');
         };
 
+        // Add event listeners to the export buttons
         doc.getElementById('exportToCSV').addEventListener('click', newWindow.exportToCSV);
         doc.getElementById('exportToExcel').addEventListener('click', newWindow.exportToExcel);
         doc.getElementById('exportToPDF').addEventListener('click', newWindow.exportToPDF);
 
+        // Include necessary script tags
         doc.write(`
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
