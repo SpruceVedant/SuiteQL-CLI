@@ -217,11 +217,7 @@ function openResultsInNewWindow(results) {
             doc.save('query_results.pdf');
         };
 
-        // Add event listeners to the export buttons
-        doc.getElementById('exportToCSV').addEventListener('click', newWindow.exportToCSV);
-        doc.getElementById('exportToExcel').addEventListener('click', newWindow.exportToExcel);
-        doc.getElementById('exportToPDF').addEventListener('click', newWindow.exportToPDF);
-
+      
         // Include necessary script tags
         doc.write(`
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
