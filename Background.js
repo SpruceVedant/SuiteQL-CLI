@@ -216,18 +216,3 @@ function openResultsInNewWindow(results) {
             doc.autoTable({ head: [Object.keys(results[0])], body: rows });
             doc.save('query_results.pdf');
         };
-
-      
-        // Include necessary script tags
-        doc.write(`
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
-        `);
-
-    } else {
-        doc.write('<p>No results found or an error occurred.</p>');
-    }
-
-    doc.write('</body></html>');
-    doc.close();
-}
