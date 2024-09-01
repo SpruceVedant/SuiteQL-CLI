@@ -109,18 +109,3 @@ function getTransactionUrl(type, id) {
     return null;
 }
 
-function openResultsInNewWindow(results) {
-    const newWindow = window.open('', '_blank', 'width=800,height=600');
-    const doc = newWindow.document;
-
-    doc.write('<html><head><title>Query Results</title></head><body>');
-    doc.write('<h2>Query Results</h2>');
-
-    const exportButtonHtml = `
-        <div id="exportButtons" style="position: fixed; top: 10px; right: 10px;">
-            <button id="exportToCSV">Export to CSV</button>
-            <button id="exportToExcel">Export to Excel</button>
-            <button id="exportToPDF">Export to PDF</button>
-        </div>
-    `;
-    doc.write(exportButtonHtml);
