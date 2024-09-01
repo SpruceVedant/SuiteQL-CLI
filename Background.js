@@ -175,6 +175,3 @@ function openResultsInNewWindow(results) {
             });
             tbody.appendChild(row);
         });
-        table.appendChild(tbody);
-
-        doc.body.appendChild(table);
