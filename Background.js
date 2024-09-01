@@ -190,29 +190,3 @@ function openResultsInNewWindow(results) {
             a.download = 'query_results.csv';
             a.click();
         };
-
-        newWindow.exportToExcel = function() {
-            const excelContent = `
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Sheet 1</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>
-                <body>
-                <table>
-                    ${results.map(row => '<tr>' + Object.values(row).map(value => `<td>${value}</td>`).join('') + '</tr>').join('')}
-                </table>
-                </body>
-                </html>`;
-            const excelBlob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-            const excelUrl = URL.createObjectURL(excelBlob);
-
-            const a = doc.createElement('a');
-            a.href = excelUrl;
-            a.download = 'query_results.xls';
-            a.click();
-        };
-
-        newWindow.exportToPDF = function() {
-            const doc = new jsPDF();
-            const rows = results.map(row => Object.values(row));
-            doc.autoTable({ head: [Object.keys(results[0])], body: rows });
-            doc.save('query_results.pdf');
-        };
