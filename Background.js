@@ -93,19 +93,3 @@ function loadQueryHistory() {
         historyDropdown.appendChild(option);
     });
 }
-
-// Mapping of transaction types to their URL structures
-const transactionUrlMapping = {
-    SalesOrd: (id) => `https://td2929968.app.netsuite.com/app/accounting/transactions/salesord.nl?id=${id}&whence=`,
-    RtnAuth: (id) => `https://td2929968.app.netsuite.com/app/accounting/transactions/rtnauth.nl?id=${id}&whence=`,
-    // Add more transaction types as needed
-};
-
-// Function to determine the correct URL for the transaction
-function getTransactionUrl(type, id) {
-    if (transactionUrlMapping[type]) {
-        return transactionUrlMapping[type](id);
-    }
-    return null;
-}
-
