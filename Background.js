@@ -144,13 +144,3 @@ function openResultsInNewWindow(results) {
         });
         thead.appendChild(headerRow);
         table.appendChild(thead);
-
-        const tbody = doc.createElement('tbody');
-        results.forEach(result => {
-            const row = doc.createElement('tr');
-            Object.entries(result).forEach(([key, value]) => {
-                const td = doc.createElement('td');
-                td.style.border = '1px solid #ddd';
-                td.style.padding = '8px';
-
-
