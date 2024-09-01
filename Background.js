@@ -178,15 +178,3 @@ function openResultsInNewWindow(results) {
         table.appendChild(tbody);
 
         doc.body.appendChild(table);
-
-        // Attach export functionality
-        newWindow.exportToCSV = function() {
-            const csvContent = results.map(row => Object.values(row).map(value => `"${value}"`).join(',')).join('\n');
-            const csvBlob = new Blob([csvContent], { type: 'text/csv' });
-            const csvUrl = URL.createObjectURL(csvBlob);
-
-            const a = doc.createElement('a');
-            a.href = csvUrl;
-            a.download = 'query_results.csv';
-            a.click();
-        };
