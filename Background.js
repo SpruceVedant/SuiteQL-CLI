@@ -153,25 +153,4 @@ function openResultsInNewWindow(results) {
                 td.style.border = '1px solid #ddd';
                 td.style.padding = '8px';
 
-                if (key === 'transaction' && result['type']) {
-                    // Generate a URL based on the transaction type
-                    const url = getTransactionUrl(result['type'], value);
-                    if (url) {
-                        const link = doc.createElement('a');
-                        link.href = url;
-                        link.target = '_blank';
-                        link.textContent = value !== null ? value : '';
-                        link.style.color = '#007bff';  // Blue color to indicate a link
-                        link.style.textDecoration = 'underline';  // Underline the link
-                        td.appendChild(link);
-                    } else {
-                        td.textContent = value !== null ? value : '';
-                    }
-                } else {
-                    td.textContent = value !== null ? value : '';
-                }
 
-                row.appendChild(td);
-            });
-            tbody.appendChild(row);
-        });
