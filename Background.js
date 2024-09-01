@@ -124,23 +124,3 @@ function openResultsInNewWindow(results) {
         </div>
     `;
     doc.write(exportButtonHtml);
-
-    if (Array.isArray(results) && results.length > 0) {
-        const table = doc.createElement('table');
-        table.style.width = '100%';
-        table.style.borderCollapse = 'collapse';
-        table.style.border = '1px solid #ddd';
-
-        const thead = doc.createElement('thead');
-        const headerRow = doc.createElement('tr');
-        Object.keys(results[0]).forEach(key => {
-            const th = doc.createElement('th');
-            th.style.border = '1px solid #ddd';
-            th.style.padding = '8px';
-            th.style.backgroundColor = '#007bff';
-            th.style.color = 'white';
-            th.textContent = key;
-            headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-        table.appendChild(thead);
